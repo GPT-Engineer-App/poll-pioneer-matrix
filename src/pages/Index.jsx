@@ -1,10 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { createClient } from '@supabase/supabase-js';
-
-const supabase = createClient('YOUR_SUPABASE_URL', 'YOUR_SUPABASE_ANON_KEY');
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 
@@ -15,23 +12,18 @@ const pollOptions = [
   "landing pages -> ui's -> full stack apps"
 ];
 
+// Simulated API calls
 const fetchVotes = async () => {
-  const { data, error } = await supabase
-    .from('votes')
-    .select('voter_name, options')
-  if (error) throw error;
-  return data.reduce((acc, vote) => {
-    acc[vote.voter_name] = vote.options;
-    return acc;
-  }, {});
+  // In a real app, this would be an API call
+  return JSON.parse(localStorage.getItem('votes') || '{}');
 };
 
-const saveVote = async ({ voter_name, options }) => {
-  const { data, error } = await supabase
-    .from('votes')
-    .insert({ voter_name, options })
-  if (error) throw error;
-  return data;
+const saveVote = async (newVote) => {
+  // In a real app, this would be an API call
+  const currentVotes = JSON.parse(localStorage.getItem('votes') || '{}');
+  const updatedVotes = { ...currentVotes, ...newVote };
+  localStorage.setItem('votes', JSON.stringify(updatedVotes));
+  return updatedVotes;
 };
 
 const Index = () => {
@@ -54,7 +46,7 @@ const Index = () => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (name && selectedOptions.length > 0) {
-      mutation.mutate({ voter_name: name, options: selectedOptions });
+      mutation.mutate({ [name]: selectedOptions });
       setName('');
       setSelectedOptions([]);
     }
